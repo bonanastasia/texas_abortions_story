@@ -1,3 +1,0 @@
-"0","terminations_by_age %>% "
-"0","  group_by(age) %>% "
-"0","  summarise(total_terminations = sum(total_terminations))"

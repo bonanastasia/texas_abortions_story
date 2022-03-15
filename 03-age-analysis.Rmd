@@ -129,5 +129,5 @@ terminations_by_age %>%
 - 77% of reported abortions were performed on women ages 20-34
 - Less than 10% of the total abortions reported for the state of Texas were performed on women aged 19 and younger. 
 
-## Up Next: [The Data Story](abortions_in_texas_story.html)
+## Up Next: [The Data Story](abortion_in_texas_story.html)
 
