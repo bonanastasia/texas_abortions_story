@@ -1,0 +1,4 @@
+"0","itop_race_recode_2010 %>% "
+"0","  filter("
+"0","    county == ""OTHER STATE"""
+"0","  )"

@@ -1,0 +1,17 @@
+"0","```r
+west_campus_trends_plot <- ggplot(west_campus_2021_trend, aes(x = mo, y = total_sales)) + # set x and y axis
+  geom_line(aes(group = yr,  color = as.character(yr))) + # split lines and set colors
+  geom_point(aes(color = as.character(yr))) +
+  labs(
+    title = \"West Campus Yearly Sales Trends\",
+    subtitle = \"Alcohol sales by year for West Campus (78705)\",
+    x = \"Month\",
+    y = \"Total sales (in dollars)\",
+    color = \"Year\", # fix the title for the legend
+    caption = \"Source: austintexas.gov\"
+  ) +
+  scale_y_continuous(labels = comma) # add commas to dollar values
+
+west_campus_trends_plot %>% 
+  ggplotly()
+```"

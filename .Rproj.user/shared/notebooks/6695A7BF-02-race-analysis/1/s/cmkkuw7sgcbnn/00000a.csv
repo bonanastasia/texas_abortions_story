@@ -1,0 +1,18 @@
+"0","county_terminations %>% "
+"0","  filter("
+"0","    name == ""LOVING"" | name == ""TERRELL"" | name == ""KING"""
+"0","  ) %>% "
+"0","  group_by(name)"
+"1","Simple feature collection with 15 features and 22 fields"
+"1","
+"
+"1","Geometry type: MULTIPOLYGON
+"
+"1","Dimension:     XY
+"
+"1","Bounding box:  "
+"1","xmin: -103.9841 ymin: 29.77913 xmax: -99.99098 ymax: 33.83612"
+"1","
+"
+"1","Geodetic CRS:  NAD83
+"

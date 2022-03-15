@@ -1,0 +1,11 @@
+"0","```r
+all_areas_covid_sales <- receipts %>% 
+  filter(
+      location_zip %in% c(\"78705\", \"78701\", \"78703\", \"78704\", \"78758\"),
+      yr == 2020
+    ) %>% 
+    group_by(mo, location_zip) %>% 
+    summarise(total_sales = sum(total_receipts))
+
+all_areas_covid_sales
+```"

@@ -1,0 +1,3 @@
+"0","ggplot(terminations_by_race, aes(x = year, y = total_terminations, fill = race)) + "
+"0","  geom_bar(stat = ""identity"") +"
+"0","  guides(fill = guide_legend(title = ""Race/Ethnicity""))"

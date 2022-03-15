@@ -1,0 +1,364 @@
+---
+title: "Race Analysis"
+output:
+  html_document:
+    theme: lumen
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    df_print: paged
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = "docs") })
+---
+
+## Setup 
+
+```{r setup, echo=T, results='hide', message=F, warning=F}
+library(tidyverse)
+library(sf) # fix annoying tidyverse tibble issue with sfc_MULTIPOLYGON
+library(clipr)
+```
+
+
+## Import data
+
+import tables from our cleaned data. We'll need both our county-only table and all-terminations
+
+### County Data (with geometry)
+
+```{r import_county_data}
+county_terminations_2020 <- read_rds("data-processed/01-county-terminations-2020.rds")
+
+county_terminations_2020 %>% arrange(total_terminations %>% desc())
+```
+
+### All terminations
+
+Including out of state and unknown counties
+
+```{r import_all_terminations}
+all_terminations <- read_rds("data-processed/02-all-terminations.rds") ## table including out of state and country rows
+
+all_terminations %>% arrange(year)
+```
+
+### Totals reported
+
+```{r import_totals}
+total_terminations <- read_rds("data-processed/03-itop-totals.rds")
+
+total_terminations
+```
+
+## Goals
+
+- Assess counties with highest termination rates on (may need to do this on average) √
+- What groups have the highest termination rates? √
+- How do those compare with those group's share of the population? √
+- Were there any noticeable trends in Texas abortion rates before the restriction was passed this year? (e.g. were they dropping, staying the same, increasing etc) √
+- What races were most likely to leave the state for procedures? Who were the least likely? √
+- What percentage of abortions occurred outside the state vs inside in 2020? What about 2019 (because COVID may have mattered here) √
+
+## Highest rates in 2020
+
+What counties had the highest rates in 2020?
+
+```{r highest_rates}
+terminations_rates_2020 <- county_terminations_2020 %>% 
+  arrange(
+    terminations_per_pop %>% desc()
+  )
+
+terminations_rates_2020
+```
+
+## Plot 2020 rates
+
+```{r map_2020_rates}
+terminations_rates_2020_plot <- terminations_rates_2020 %>% 
+  ggplot() +
+  geom_sf(aes(fill = terminations_per_pop), color = "white", size = .2) +
+  theme_void() +
+  labs(
+    title = "Terminations per 1,000 in Texas counties",
+    caption = "Source: Texas Health and Human Services"
+  ) +
+  scale_fill_distiller(
+    palette = "Greens",
+    direction = 1,
+    name = "Cases per 1000"
+  ) +
+  theme(plot.margin = unit(c(10,0,10,0), "pt"))
+
+terminations_rates_2020_plot
+```
+
+## Export for datawrapper
+
+### Step one
+
+Select only the data we need so we can clean it up and export for datawrapper
+
+```{r datawrapper_export}
+datawrapper_rates <-  terminations_rates_2020 %>% 
+rename(
+    county = name
+  )  %>% 
+  mutate(
+    county = str_to_title(county)
+  ) %>% 
+  select(
+    county,
+    geoid,
+    terminations_per_pop
+  ) %>% 
+  arrange(county)
+
+datawrapper_rates %>% write_csv("data-processed/datawrapper.csv") # export to csv so we can hackily get rid of geometry in the next step
+```
+
+### Step 2
+
+```{r reimport_datawrapper}
+data_wrapper_clean <- read_csv("data-processed/datawrapper.csv") %>% 
+  select(-geometry) # get rid of geometry
+
+data_wrapper_clean %>% write_clip(allow_non_interactive = T)
+```
+
+### Datawrapper chart for story:
+
+Link to datawrapper chart here: [2020 abortion rates](https://datawrapper.dwcdn.net/Hnv4C/1/)
+
+**Question**: 
+what's going on in Loving, King, and Terrell counties? 
+
+**Answer**:
+Loving has a tiny population (64 people), and in 2020 there were 2 abortions performed there. King, with a population of 265 had 1 abortion, and in Terrell (pop 760), there were 3 abortions in 2020.
+
+**follow-up question**: What were those county's numbers the other years? Let's take a look!
+
+```{r loving_county}
+county_terminations_2020 %>% 
+  filter(
+    name == "LOVING" | name == "TERRELL" | name == "KING"
+  ) %>% 
+  group_by(name)
+```
+
+### Loving and Terrell populations
+
+Let's look at how these counties rank in terms of size compared to other counties
+
+```{r texas_populations}
+county_terminations_2020 %>% 
+  arrange(total_pop)
+```
+
+
+**Takeways:** 
+
+Loving's 2020 rate was definitely a fluke, but Terrell has had relatively high rates of 8 (2017), 5 (2018), and 4 (2020) which is kind of interesting given there isn't an abortion clinic there. King had a rate of 4 for both 2020 and 2019, but rates of zero for the three years prior.
+
+Interestingly, **all three counties are in the 10 least-populace counties of Texas**: Loving ranking #1 least-populace, King #2 least-populous, and Terrell #7. 
+
+
+## Abortions over time
+
+How have the number of abortions changed over the ten years, if at all? Analyze then copy for datawrapper
+
+```{r terminations_over_time}
+terminations_over_time <- all_terminations %>% 
+  group_by(year) %>% 
+  summarise(total_terminations = sum(total_terminations)) # get total terminations by year
+
+terminations_over_time %>% write_clip(allow_non_interactive = T) # for datawrapper
+
+terminations_over_time
+```
+
+### Plot terminations over time
+
+```{r time_bar_chart}
+ggplot(terminations_over_time, aes(x = year, y = total_terminations)) + # set x and y axis
+  geom_col(aes(fill = year)) + # add columns
+  labs(
+    title = "Abortions Trends over the last Decade",
+    subtitle = "Before the 6 week ban, abortions in Texas had decline nearly 30% over the last decade",
+    caption = "By Ana Goodwin",
+    x = "Year",
+    y = "Total Terminations"
+  )
+```
+
+
+Texas abortions have stayed pretty consistent the last 5 years, only fluctuating by around 3,400. However, abortions have steadily been dropping over time. They have dropped by 28% since 2010.
+
+
+## Race and terminations
+
+Analyze the following:
+
+- Were any specific races over-represented in terminations in 2020?
+- Have any groups seen major increases or decreases in their numbers the last decade?
+
+```{r terminations_by_race}
+terminations_by_race <- all_terminations %>% 
+  select(
+    -(total_terminations:age_not_stated) #get rid of age columns
+  ) %>% 
+  pivot_longer(
+    cols = asian:race_not_stated, # select columns to pivot
+    names_to = "race", # new column name
+    values_to = "terminations"
+  ) %>% 
+  mutate(
+    race = recode(
+      race,
+      "other" = "other/unknown",
+      "race_not_stated" = "other/unknown",
+      "native_american" = "native american"
+    )
+  ) %>% 
+  group_by(year, race) %>% # group by race
+  summarise(
+    total_terminations = sum(terminations) # add all the termination counts together
+  )
+
+terminations_by_race
+```
+
+## Plot race data
+
+```{r plot_races}
+ggplot(terminations_by_race, aes(x = year, y = total_terminations)) + # set x and y axis
+  geom_line(aes(group = race,  color = as.character(race))) + # split lines and set colors
+  labs(
+    title = "Texas Abortions By Race",
+    subtitle = "Reported abortions performed on Texas residents for the years 2016-2020",
+    x = "Year",
+    y = "Total terminations",
+    color = "Year", # fix the title for the legend
+    caption = "Source: Texas Health and Human Services"
+  )
+```
+
+### Race breakdown bar chart
+
+The race data would be better represented by a bar chart
+
+```{r race_bar_chart}
+ggplot(terminations_by_race, aes(x = year, y = total_terminations, fill = race)) + 
+  geom_bar(stat = "identity") +
+  guides(fill = guide_legend(title = "Race/Ethnicity"))
+```
+
+### Export this data for datawrapper
+
+To make a grouped bar chart for datawrapper, we need to have this be in a slightly different form
+
+```{r terminations_by_race_datawrapper}
+terminations_by_race_datawrapper <- terminations_by_race %>% 
+  pivot_wider(
+     names_from = race, values_from = total_terminations
+  )
+  
+terminations_by_race_datawrapper %>% write_clip(allow_non_interactive = T)
+```
+
+### Datawrapper chart for story:
+
+Link to datawrapper chart here: [abortions by race](https://datawrapper.dwcdn.net/E9f9A/1/)
+
+### Takeaways:
+
+- In 2020, Black women accounted for 30% (16942 terminations) of Texas' total reported abortions for the year (56358 total) 
+- In 2020, Hispanic women accounted for 36% (20348 terminations) of Texas' total reported abortions for the year (56358 total) 
+- In 2020, White women accounted for (14864	terminations) of Texas' total reported abortions for the year (56358 total) 
+
+### Follow-up questions:
+
+- What percentage of women in Texas are Black and Hispanic?
+- How will these groups be impacted by needing to leave the state for procedures? (for interviews)
+- What percentage do these groups makeup of out of state abortions for 2020?
+
+## Demographic data
+
+Below are some data points pulled from the American Community Survey 5-year estimates from [the U.S. Census Bureau](https://data.census.gov/cedsci/table?q=Table%20B01001&t=Age%20and%20Sex&g=0400000US48&y=2019&tid=ACSDT5Y2019.B01001&hidePreview=true) for some additional context. 
+
+Texas female population demographics:
+
+- Total female population in Texas: 14,226,847 [data here](https://censusreporter.org/data/table/?table=B01001&geo_ids=04000US48&primary_geo_id=04000US48#valueType|estimate)
+- Hispanic females: 5,521,513 [See data here ](https://data.census.gov/cedsci/table?q=Table%20B01001I&t=Age%20and%20Sex&g=0400000US48&y=2019&tid=ACSDT5Y2019.B01001I&hidePreview=true)
+- Black females: 1,771,632 [See data here](https://data.census.gov/cedsci/table?q=Table%20B01001b&t=Age%20and%20Sex&g=0400000US48&y=2019&tid=ACSDT5Y2019.B01001B&hidePreview=true)
+- White females: 10,502,123 [See data here](https://data.census.gov/cedsci/table?q=Table%20B01001a&t=Age%20and%20Sex&g=0400000US48&y=2019&tid=ACSDT5Y2019.B01001A&hidePreview=true)
+
+## Out of state abortions
+
+First let's get the total number of reported abortions on Texans out of state
+
+```{r other_state_totals}
+all_terminations %>% 
+  filter(
+    county == "OTHER STATE"
+  )  %>% 
+  group_by(year) %>% 
+  summarise(
+    OOS_terminations = sum(total_terminations) # add all the termination counts together for Out of State (OOS) totals
+  )
+```
+
+*takeaway*: for 2020, there were 1124 reported terminations performed on Texas residents. In 2019, less women had abortions performed in different states with 1074.
+
+## OOS terminations by race
+
+Let's see what groups what share of out of state terminations each group had
+
+```{r out_of_state_terminations}
+all_terminations %>% 
+  filter(
+    county == "OTHER STATE"
+  ) %>% 
+  select(
+    -(total_terminations:age_not_stated) #get rid of age columns
+  ) %>% 
+  pivot_longer(
+    cols = asian:race_not_stated, # select columns to pivot
+    names_to = "race", # new column name
+    values_to = "terminations"
+  ) %>% 
+  mutate(
+    race = recode(
+      race,
+      "other" = "other/unknown",
+      "race_not_stated" = "other/unknown",
+      "native_american" = "native american"
+    )
+  ) %>% 
+  group_by(year, race) %>% # group by race
+  summarise(
+    total_terminations = sum(terminations) # add all the termination counts together
+  )
+
+```
+
+Follow up question for interviews: how does TX HHS handle reporting from other states? (AKA how much can we trust this data and how complete is it?)
+
+Takeaways:
+- Total terminations performed in different states: 1124
+- Hispanic OOS abortions: 120	(10.6%)
+- Black OOS abortions: 543 (48%)
+- White OOS abortions: 402 (35.6%)
+
+## Facts for story:
+
+1. Hispanic women make up about 39%  of the female population in Texas, according to data from the U.S. Census Bureau, and make up a proportionate share of the terminations for 2020 at 36%. 
+2. On the other hand, Black women only make up for about 12.5% of the female population of Texas, but accounted for 30% of the terminations in 2020. 
+3. Though Hispanic women made up the largest share of Texas's reported abortions in 2020, they made up only 10% of the abortions performed in other states.
+4. Texas abortion numbers have stayed relatively consistent the last 5 years with the highest total being reported in 2019 with 57929 terminations, and the lowest in 2017 with 53843
+5. The least populace county in Texas, Loving, had the highest abortion rate per thousand people in 2020. Loving County has a population of only 64 people, but had two abortions in 2020. The second least-populous county, King, had the second-highest rate -- 4 per 1000 -- in 2020 with 1 abortion for its 265 residents. 
+6. Five of the least populace counties-- Loving, King, Kenedy, McMullen and Terrell -- were in the top-10 highest abortions rates for the state in 2020. Others in the top-10 were less surprising -- Harris, Bexar, Dallas, and Travis had some of the highest rates but are also areas with some of the largest populations in the state and more access to abortion providers.  
+7. White women accounted for 26% of abortions in the state, despite representing 74% of the female population.
+8. Abortions decreased by 28% between 2010 and 2020
+
+## Up Next: [Age Analysis](03-age-analysis.html)
+

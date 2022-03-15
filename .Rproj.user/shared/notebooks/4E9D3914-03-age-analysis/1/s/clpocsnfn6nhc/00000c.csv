@@ -1,0 +1,2 @@
+"0","ggplot(terminations_by_age, aes(x=year, y=total_terminations, fill=age)) +"
+"0","  geom_bar(stat=""identity"", position=position_dodge())"

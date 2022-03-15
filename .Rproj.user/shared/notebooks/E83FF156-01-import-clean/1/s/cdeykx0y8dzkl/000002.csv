@@ -1,0 +1,7 @@
+"0","age_data_joined <- full_join("
+"0","  itop_age_recode_2016,"
+"0","  itop_age_recode_2010"
+"0",") %>% arrange(sheet)"
+"1","Joining, by = c(""sheet"", ""county"", ""total"", ""under_15_years"", ""x15_to_19_years"", ""x20_to_24_years"", ""x25_to_29_years"", ""x30_to_34_years"", ""x35_to_39_years"", ""x40_years"", ""age_not_stated"")
+"
+"0","age_data_joined"

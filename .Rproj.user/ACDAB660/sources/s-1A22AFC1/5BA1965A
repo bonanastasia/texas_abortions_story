@@ -1,0 +1,29 @@
+{
+    "id": "5BA1965A",
+    "path": "~/Documents/UT Classes/rwd/goodwin_texas_abortions/03-age-analysis.Rmd",
+    "project_path": "03-age-analysis.Rmd",
+    "type": "r_markdown",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1647305429979.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "tempName": "Untitled1",
+        "chunk_output_type": "inline",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "131,48",
+        "scrollLine": "124",
+        "last_setup_crc32": ""
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1647305488,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1647305488519,
+    "read_only": false,
+    "read_only_alternatives": []
+}

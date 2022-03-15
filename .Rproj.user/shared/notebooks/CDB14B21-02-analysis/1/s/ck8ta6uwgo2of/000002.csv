@@ -1,0 +1,10 @@
+"0","```r
+yearly_totals_downtown <- receipts %>% 
+  filter(
+      location_zip == \"78701\"
+    ) %>% 
+    group_by(yr) %>% 
+    summarise(total_sales = sum(total_receipts))
+
+yearly_totals_downtown
+```"

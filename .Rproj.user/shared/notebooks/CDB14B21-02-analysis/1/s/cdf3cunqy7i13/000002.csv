@@ -1,0 +1,13 @@
+"0","```r
+ggplot(all_areas_covid_sales, aes(x = mo, y = total_sales)) + # set x and y axis
+  geom_line(aes(group = location_zip,  color = as.character(location_zip))) + # split lines and set colors
+  labs(
+    title = \"Total Sales By Month\",
+    subtitle = \"Amount of alcohol sales monthly by year\",
+    x = \"Month\",
+    y = \"Total sales (in dollars)\",
+    color = \"Zipcode\", # fix the title for the legend
+    caption = \"Source: austintexas.gov\" 
+  ) +
+  scale_y_continuous(labels = comma) # Add commas to numbers
+```"

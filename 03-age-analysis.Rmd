@@ -1,0 +1,133 @@
+---
+title: "Age Analysis"
+output:
+  html_document:
+    theme: lumen
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    df_print: paged
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = "docs") })
+---
+
+## Setup 
+
+```{r setup, echo=T, results='hide', message=F, warning=F}
+library(tidyverse)
+library(sf) # fix annoying tidyverse tibble issue with sfc_MULTIPOLYGON/sfc
+library(clipr)
+```
+
+
+## Goals of this notebook:
+
+- What age groups have the highest termination rates?
+- What age groups had the highest proportion of terminations in Texas? √
+- Were there any counties with unusually high teen pregnancy rates?
+
+## Import data
+
+import tables from our cleaned data. We'll need both our county-only table and all-terminations
+
+### All terminations data
+
+```{r import_all_terminations}
+all_terminations <- read_rds("data-processed/02-all-terminations.rds") ## table including out of state and country rows
+
+all_terminations
+```
+
+### Counties-only data
+
+```{r import_county_data}
+county_terminations <- read_rds("data-processed/01-county-terminations.rds")
+
+county_terminations
+```
+
+
+## Age of terminations
+
+Let's take a look at our age demographics for terminations
+
+```{r age_terminations}
+terminations_by_age <- all_terminations %>% 
+  select(
+    -(asian:total_terminations) #get rid of age columns
+  ) %>% 
+  pivot_longer(
+    cols = under_15_years:age_not_stated, # select columns to pivot
+    names_to = "age", # new column name
+    values_to = "terminations"
+  ) %>% 
+  mutate(
+    age = str_replace_all(age, "_", " "), # fix value names to be human-readable
+    age = str_replace(age, "x", "")
+  ) %>% 
+  group_by(year, age) %>% # group by race
+  summarise(
+    total_terminations = sum(terminations) # add all the termination counts together
+  )
+
+terminations_by_age
+```
+
+## Plot Age distribution data
+
+Let's look at the age demographic data for terminations using a grouped bar chart (`position=position_dodge()` in ggplot)
+
+```{r age_grouped_barchart}
+ggplot(terminations_by_age, aes(x=year, y=total_terminations, fill=age)) +
+  geom_bar(stat="identity", position=position_dodge())
+```
+
+### Export for datawrapper
+
+To make a grouped bar chart for datawrapper, we need to have this data in a slightly different format to work there
+
+```{r terminations_by_race_datawrapper}
+terminations_by_age_datawrapper <- terminations_by_age %>% 
+  filter(
+    age != "under 15 years", age != "age not stated" # exclude these two since they're insignificant for chart
+  ) %>% 
+  pivot_wider(
+     names_from = age, values_from = total_terminations
+  )
+
+terminations_by_age_datawrapper %>% write_clip(allow_non_interactive = T) # copy to clipboard
+```
+
+### Calculate insignificant amounts
+
+Since under 15 and age not stated are hard to see in the chart on datawrapper, calculate the amounts so we can note them in the chart and remove them
+
+```{r calculate_edge_cases}
+terminations_by_age %>% 
+  group_by(age) %>% 
+  summarise(total_terminations = sum(total_terminations))
+```
+
+### Datawrapper chart for story:
+
+Link to datawrapper chart here: [Abortions by age](https://datawrapper.dwcdn.net/Mno4K/2/)
+
+## Terminations in 2020
+
+```{r 2020_terminations}
+terminations_by_age %>% 
+  filter(
+    year == "2020"
+  ) %>% 
+  arrange(
+    total_terminations %>% desc()
+  )
+```
+
+## Facts for story: 
+
+- Women from ages 20-29 made up nearly 60% of the total Texas abortions reported in 2020, with 32817 of the 56358 total terminations reported.
+- 77% of reported abortions were performed on women ages 20-34
+- Less than 10% of the total abortions reported for the state of Texas were performed on women aged 19 and younger. 
+
+## Up Next: [The Data Story](abortions_in_texas_story.html)
+

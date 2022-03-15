@@ -1,0 +1,12 @@
+"0","```r
+#  make area data wider to be able to plot in datawrapper
+west_campus_recovery_wide <- receipts %>% 
+  filter(
+      location_zip == \"78701\",
+    ) %>% 
+  group_by(yr, mo) %>% 
+  summarise(total_sales = sum(total_receipts)) %>% 
+  pivot_wider(names_from = yr, values_from = total_sales)
+
+west_campus_recovery_wide %>% write_clip(allow_non_interactive = T)
+```"

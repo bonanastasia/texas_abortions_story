@@ -1,0 +1,4 @@
+"0","skittles_long %>% "
+"0","  group_by(name) %>% "
+"0","  summarise(total_skittles = sum(candies)) %>% "
+"0","  slice(which.max(total_skittles)) # Find max row"

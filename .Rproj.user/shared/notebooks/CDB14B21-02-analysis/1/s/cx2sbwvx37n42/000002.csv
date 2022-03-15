@@ -1,0 +1,14 @@
+"0","```r
+ggplot(march_data_west_campus, aes(x = as.character(yr), y = total_sales)) + # set x and y axis
+  geom_col(aes(fill =  as.character(yr))) +
+  geom_text(aes(label = comma(total_sales)), vjust = 2, color = \"white\") +
+  labs(
+    title = \"March Sales in West Campus\",
+    subtitle = \"Amount of reported receipts in 78705 during month of March, by year\",
+    x = \"Year\",
+    y = \"Total sales (in dollars)\",
+    caption = \"Source: austintexas.gov\",
+    fill = \"Year\" # fix legend title
+  ) + 
+  scale_y_continuous(labels = comma) # add commas
+```"

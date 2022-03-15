@@ -1,0 +1,14 @@
+"0","```r
+ggplot(yearly_totals_downtown, aes(x = as.character(yr), y = total_sales)) + # set x and y axis
+  geom_col(aes(fill =  as.character(yr))) +
+  geom_text(aes(label = comma(total_sales)), vjust = 2, color = \"white\") +
+  labs(
+    title = \"Yearly Alcohol Sales in Downtown\",
+    subtitle = \"Total alcohol sales for 78701, including partial year 2021 (thru 08/31/21)\",
+    x = \"Year\",
+    y = \"Total sales (in dollars)\",
+    caption = \"Source: austintexas.gov\"
+  ) + 
+  scale_y_continuous(labels = comma) + # add commas 
+  theme(legend.position = \"none\") # hide legend since we don't need it
+```"

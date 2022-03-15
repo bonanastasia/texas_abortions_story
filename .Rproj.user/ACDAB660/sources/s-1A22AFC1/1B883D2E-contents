@@ -1,0 +1,447 @@
+---
+title: "import"
+output:
+  html_document:
+    theme: lumen
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    df_print: paged
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir = "docs") })
+---
+
+---
+
+## Setup
+
+```{r setup, echo=T, results='hide', message=F, warning=F}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(tidycensus)
+```
+
+
+## The data
+
+We will be analyzing statistical tables from the Induced Terminations of Pregnancy (ITOP) collected by *Texas Health and Human Services Commission* per the Texas Abortion Facility Reporting and Licensing Act, Health and Safety Code, Chapter 245. The tables include reported procedures by both are reports Texas providers and providers who have performed procedures on Texas residents outside the state. (Question for Texas Health and Human Services: how do they collect data from outside providers?)
+
+Data can be found here: [ITOP Data](https://www.hhs.texas.gov/about/records-statistics/data-statistics/itop-statistics)
+
+
+## Glimpse data
+
+Let's peak at one of our data sheets to see what we're working with
+
+```{r glimpse_race}
+race_county <- read_excel("data-raw/itop_race/itop_race_county.xlsx", sheet="2020", skip = 2)
+
+race_county
+```
+
+Note: looks like we need to work around the last rows with excess information 
+
+
+## Import datasets
+Import the age and race/ethnicity datasets for 2016-2020
+
+### Race data
+
+Import race data with sheets for different years, combine into one tibble. Make sure to limit to just the rows with information we need (3-263)
+
+```{r import_race_data}
+# set path to data
+path <- "data-raw/itop_race/itop_race_county.xlsx"
+
+# import and combine sheets
+itop_race_county_2016 <- path %>%
+  excel_sheets() %>%
+  set_names() %>% 
+  map_df(~ read_excel(path = path, sheet = .x, range = cell_rows(3:263)), .id = "sheet") %>% # read sheets, skip first 2 rows, map name of sheet
+  clean_names() %>%
+  arrange(sheet)
+
+itop_race_county_2016
+```
+
+## Recode and standardize data
+
+We need to address discrepancies in the county column. Let's do the following:
+- Recode the `unknown county` values so they match
+- Set everything to uppercase for consistency
+- remove whitespace
+- rename
+
+```{r recode_race}
+itop_race_recode_2016 <- itop_race_county_2016 %>% 
+  mutate(
+    county = str_to_upper(county), #set to uppercase
+    county = str_trim(county, side = "both"),
+    county = recode( 
+      county, # column
+      "TX UNKNOWN COUNTY" = "UNKNOWN TEXAS COUNTY", # Rename values in the unknown county rows
+      "TX RESIDENTS" = "TX RESIDENT TOTAL",
+      "TOTAL REPORTED*" = "TOTAL REPORTED",
+      "TOTAL*" = "TOTAL REPORTED"
+      )
+  ) %>% 
+  rename(
+    race_not_stated = not_stated
+  ) %>% 
+  select(
+    -total
+  )
+
+itop_race_recode_2016
+```
+
+## Check values
+let's make sure that actually worked by returning 5 years (rows) of data
+
+```{r check_race_recode}
+itop_race_recode_2016 %>% 
+  filter(
+    county == "UNKNOWN TEXAS COUNTY"
+  )
+```
+### Import Race data 2010-2015
+
+Import race data with sheets for years 2010-2015 separately since they are a bit different
+
+```{r import_race_data_2010}
+# set path to data
+path <- "data-raw/itop_race/itop_race_county_2010-2015.xlsx"
+
+# import and combine sheets
+itop_race_county_2010 <- path %>%
+  excel_sheets() %>%
+  set_names() %>% 
+  map_df(~ read_excel(path = path, sheet = .x, range = cell_rows(7:267),), .id = "sheet") %>% # read sheets, skip first 2 rows, map name of sheet, add x to beginning of columns with numbers as first char
+  clean_names() %>% 
+  arrange(sheet %>% desc())
+
+itop_race_county_2010
+```
+
+### Recode values
+
+Make names and column names consistent
+
+```{r recode_race_2010}
+  itop_race_recode_2010 <- itop_race_county_2010  %>% 
+  mutate(
+    county = str_to_upper(county), #set to uppercase
+    county = str_trim(county, side = "both"),
+    county = recode( 
+      county, # column
+      "TEXAS" = "TX RESIDENT TOTAL",
+      "TEXAS RESIDENTS" = "TX RESIDENT TOTAL",
+      "TX UNKNOWN" = "UNKNOWN TEXAS COUNTY",
+      "OTHER STATE RESIDENCY" = "OTHER STATE",
+      "OTHER COUNTRY RESIDENCY" = "OTHER COUNTRY",
+      "UNK/MISSING" = "NOT STATED",
+      "TX UNKNOWN COUNTY" = "UNKNOWN TEXAS COUNTY",
+      "UNKNOWN" = "NOT STATED",
+      "UNKNOWN RESIDENCY" = "NOT STATED",
+      "TOTAL**" = "TOTAL REPORTED",
+      "TOTAL*" = "TOTAL REPORTED",
+      "TOTAL" = "TOTAL REPORTED"
+      ),
+  ) %>% 
+  rename(
+    race_not_stated = unk
+  ) %>% 
+  select(
+    -total
+  )
+
+itop_race_recode_2010
+```
+
+### Check values
+
+let's make sure that actually worked by returning 5 years (rows) of data
+
+```{r check_race_2010_recode}
+itop_race_recode_2010 %>% 
+  filter(
+    county == "OTHER STATE"
+  )
+```
+### Join Race data
+
+Join datasets from 2010-2020
+
+```{r join_race_data}
+race_data_joined <- full_join(
+  itop_race_recode_2016,
+  itop_race_recode_2010
+) %>% arrange(sheet %>% desc())
+
+race_data_joined
+```
+
+## Age data
+
+Import age data with sheets for different years, combine into one tibble
+
+```{r import_age_data}
+# set path to data
+path <- "data-raw/itop_age/itop_age_county.xlsx"
+
+# import and combine sheets
+itop_age_county_2016 <- path %>%
+  excel_sheets() %>%
+  set_names() %>% 
+  map_df(~ read_excel(path = path, sheet = .x, range = cell_rows(3:263)), .id = "sheet") %>% # read sheets, skip first 2 rows, map name of sheet, add x to beginning of columns with numbers as first char
+  clean_names() %>%
+  arrange(sheet)
+
+itop_age_county_2016
+```
+
+### Recode values
+
+Make names and column names consistent
+
+```{r recode_age}
+ itop_age_recode_2016 <- itop_age_county_2016  %>% 
+  mutate(
+    county = str_to_upper(county), #set to uppercase
+    county = str_trim(county, side = "both"),
+    county = recode( 
+      county, # column
+      "TX UNKNOWN COUNTY" = "UNKNOWN TEXAS COUNTY", # Rename values in the unknown county rows
+      "TX UNKNOWN" = "UNKNOWN TEXAS COUNTY",
+      "TOTAL REPORTED**" = "TOTAL REPORTED",
+      "TOTAL**" = "TOTAL REPORTED"
+      ),
+  ) %>% 
+  rename(
+    age_not_stated = not_stated
+  )
+
+itop_age_recode_2016
+```
+
+## Check values
+
+let's make sure that actually worked by returning 5 years (rows) of data
+
+```{r check_age_recode}
+itop_age_recode_2016 %>% 
+  filter(
+    county == "UNKNOWN TEXAS COUNTY"
+  )
+```
+
+### Import Age data 2010-2015
+
+Import age data with sheets for years 2010-2015 separately since they are a bit different
+
+```{r import_age_data_2010}
+# set path to data
+path <- "data-raw/itop_age/itop_age_county_2010-2015.xlsx"
+
+# import and combine sheets
+itop_age_county_2010_2015 <- path %>%
+  excel_sheets() %>%
+  set_names() %>% 
+  map_df(~ read_excel(path = path, sheet = .x, range = cell_rows(8:268)), .id = "sheet") %>% # read sheets, skip first 2 rows, map name of sheet, add x to beginning of columns with numbers as first char
+  clean_names() %>% 
+  arrange(sheet)
+
+itop_age_county_2010_2015
+```
+
+### Recode values
+
+Make names and column names consistent
+
+```{r recode_age_2010}
+  itop_age_recode_2010 <- itop_age_county_2010_2015  %>% 
+  mutate(
+    county = str_to_upper(county), #set to uppercase
+    county = str_trim(county, side = "both"),
+    county = recode( 
+      county, # column
+      "TEXAS" = "TX RESIDENT TOTAL",
+      "TX UNKNOWN" = "UNKNOWN TEXAS COUNTY",
+      "UNK/MISSING" = "NOT STATED",
+      "UNKNOWN" = "NOT STATED",
+      "TOTAL**" = "TOTAL REPORTED"
+      ),
+  ) %>% 
+  rename(
+    age_not_stated = unk,
+    under_15_years = under_15,
+    x15_to_19_years = x15_19,
+    x20_to_24_years  = x20_24,
+    x25_to_29_years = x25_29,
+    x30_to_34_years = x30_34,
+    x35_to_39_years = x35_39,
+    x40_years = x40
+  ) 
+
+itop_age_recode_2010
+```
+
+### Join age data
+
+```{r join_all_age_data}
+age_data_joined <- full_join(
+  itop_age_recode_2016,
+  itop_age_recode_2010
+) %>% arrange(sheet)
+
+age_data_joined
+```
+
+## Save totals rows in own table
+
+Get total rows from age able first
+
+```{r age_totals_table}
+age_totals <- age_data_joined %>% 
+  filter(
+    grepl('TOTAL', county)
+  )
+
+age_totals
+```
+
+
+### Race totals
+
+Ngow et total rows from the race table
+
+```{r race_totals_table}
+race_totals <- race_data_joined %>% 
+  filter(
+    grepl('TOTAL', county)
+  )
+
+race_totals
+```
+
+## Combine datasets
+
+Let's get this data into one spot to look at by joining our tables
+
+### Save Totals to their own table
+
+Should have 2 rows /yr* 5 years of data, so a total of 10 rows
+
+```{r join_data}
+itop_totals <- inner_join( #join the remaining data minus the totals
+  race_totals,
+  age_totals
+)
+
+itop_totals
+```
+
+### Join `age` and `race` tables
+
+Join together the two tables, minus the totals. Should have a total of 1290 
+
+
+```{r join_race_age}
+all_terminations <- inner_join( #join the remaining data minus the totals
+  race_data_joined,
+  age_data_joined
+  ) %>%
+  rename(
+    total_terminations = total, # rename this a more semantic name
+    year = sheet
+  ) %>% 
+  filter(
+    county != "TOTAL REPORTED", #remove the total rows
+    county != "TX RESIDENT TOTAL"
+  )
+
+all_terminations %>% arrange(year)
+```
+
+## Get Census data
+
+Let's get the total populations of these counties using the decennial census data from http://data.census.gov 
+
+```{r import_population_data}
+tx_pop <- get_decennial( # get texas county decennial population data
+    year = 2020,
+    variables = "P1_001N",
+    geography = "county",
+    state = "TX",
+    geometry = TRUE
+  ) %>%
+  clean_names() %>% # cleanup names
+  mutate(
+    name = str_to_upper(str_sub(name, end = -14)),
+    name = str_trim(name, side = "both") # get rid of white space
+  ) %>% 
+  rename(
+    total_pop = value # rename this a more semantic name
+  ) %>%
+  arrange(name)
+
+
+tx_pop
+```
+## Make 2020 table
+
+Let's make a table with just the data from 2020 to match up with our census data
+
+```{r 2020_itop}
+terminations_2020 <- all_terminations %>% 
+  filter(
+    year == 2020
+  )
+
+terminations_2020
+```
+
+
+## Join census and itop data
+
+Since we have some data without geometry/population data (unknown county, other country, other state, etc.), doing an inner join to eliminate those (should end up with 254 rows for the 254 counties). Let's just our census data with our termination data from 2020 so we can calculate rates for 2020.
+
+```{r join_census_itop}
+terminations_and_census <- inner_join( # this will get rid of the non-county values
+  tx_pop,# second table with columns we'll add 
+  terminations_2020,
+  by = c("name" = "county")
+) 
+
+terminations_and_census
+```
+
+## Add county column
+
+We need to calculate abortion rate per 1000. To do so, we'll need to calculate the individual county totals and the rates/1000
+
+```{r}
+county_termination_rates_2020 <- terminations_and_census %>% 
+  mutate(
+    terminations_per_pop = (total_terminations / (total_pop / 1000)) %>% round()
+  )
+
+county_termination_rates_2020
+```
+
+## Export processed data
+
+Export our cleaned data so we can reference it in our separate analysis notebook 
+
+```{r export}
+county_termination_rates_2020 %>% 
+  write_rds("data-processed/01-county-terminations-2020.rds")
+
+all_terminations %>% 
+  write_rds("data-processed/02-all-terminations.rds")
+
+itop_totals %>% 
+  write_rds("data-processed/03-itop-totals.rds")
+```
+
+## Up Next: [Race Analysis](02-race-analysis.html)

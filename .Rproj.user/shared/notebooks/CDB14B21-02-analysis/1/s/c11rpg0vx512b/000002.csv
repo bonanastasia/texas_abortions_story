@@ -1,0 +1,11 @@
+"0","```r
+march_data_west_campus <- receipts %>% 
+  filter(
+      location_zip == \"78705\",
+      mo == \"Mar\"
+    ) %>% 
+    group_by(yr) %>% 
+    summarise(total_sales = sum(total_receipts))
+
+march_data_west_campus
+```"

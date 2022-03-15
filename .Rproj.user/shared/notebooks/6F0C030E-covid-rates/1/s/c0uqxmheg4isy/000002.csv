@@ -1,0 +1,16 @@
+"0","```r
+tx_pop <- get_decennial(
+  year = 2020,
+  variables = \"P1_001N\",
+  geography = \"state\"
+)
+```"
+"1","Getting data from the 2020 decennial Census
+Using the PL 94-171 Redistricting Data summary file
+"
+"1","Note: 2020 decennial Census data use differential privacy, a technique that
+introduces errors into data to preserve respondent confidentiality.
+ℹ Small counts should be interpreted with caution.
+ℹ See https://www.census.gov/library/fact-sheets/2021/protecting-the-confidentiality-of-the-2020-census-redistricting-data.html for additional guidance.
+This message is displayed once per session.
+"

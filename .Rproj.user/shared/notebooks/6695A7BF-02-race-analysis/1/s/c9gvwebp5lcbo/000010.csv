@@ -1,0 +1,3 @@
+"0","all_terminations <- read_rds(""data-processed/02-all-terminations.rds"") ## table including out of state and country rows"
+"0",""
+"0","all_terminations %>% arrange(year)"

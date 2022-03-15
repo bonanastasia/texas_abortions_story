@@ -1,0 +1,6 @@
+"0","terminations_by_race_datawrapper <- terminations_by_race %>% "
+"0","  pivot_wider("
+"0","     names_from = race, values_from = total_terminations"
+"0","  )"
+"0","  "
+"0","terminations_by_race_datawrapper %>% write_clip(allow_non_interactive = T)"

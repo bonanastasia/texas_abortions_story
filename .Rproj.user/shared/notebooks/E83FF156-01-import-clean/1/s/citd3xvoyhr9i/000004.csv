@@ -1,0 +1,7 @@
+"0","race_data_joined <- full_join("
+"0","  itop_race_recode_2016,"
+"0","  itop_race_recode_2010"
+"0",") %>% arrange(sheet %>% desc())"
+"1","Joining, by = c(""sheet"", ""county"", ""asian"", ""hispanic"", ""white"", ""black"", ""native_american"", ""other"", ""race_not_stated"")
+"
+"0","race_data_joined"

@@ -1,0 +1,6 @@
+"0","age_totals <- age_data_joined %>% "
+"0","  filter("
+"0","    grepl('TOTAL', county)"
+"0","  )"
+"0",""
+"0","age_totals"

@@ -1,0 +1,5 @@
+"0","```r
+ggplot(receipts_yr, aes(x = yr_mo, y = total_sales)) +
+  geom_line(group = 1) +# tell ggplot to only plot the single line
+  theme(axis.text.x = element_text(angle = 90)) # flips the axis name
+```"
