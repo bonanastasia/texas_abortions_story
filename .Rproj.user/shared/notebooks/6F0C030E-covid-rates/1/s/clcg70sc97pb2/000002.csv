@@ -1,0 +1,16 @@
+"0","```r
+tx_rates %>% 
+  ggplot() +
+  geom_sf(aes(fill = cases_per_pop), color = \"white\", size = 0.2) +
+  theme_void() +
+  labs(
+    title = \"COVID cases per 1,000 in Texas counties\",
+    caption = \"Source: New York Times COVID, Census Bureau/2020 Decennial\"
+  ) +
+  scale_fill_distiller(
+    palette = \"Greens\",
+    direction = 1,
+    name = \"Cases per 1000\"
+  ) +
+  theme(plot.margin = unit(c(10,0,10,0), \"pt\"))
+```"

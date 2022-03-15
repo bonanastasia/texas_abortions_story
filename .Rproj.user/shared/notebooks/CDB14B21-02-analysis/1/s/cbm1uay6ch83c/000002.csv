@@ -1,0 +1,15 @@
+"0","```r
+ggplot(domain_sales_by_year, aes(x = as.character(yr), y = total_sales)) + # set x and y axis
+  geom_col(aes(fill =  as.character(yr))) +
+  geom_text(aes(label = comma(total_sales)), vjust = 2, color = \"white\") +
+  labs(
+    title = \"The Domain Alcohol Sales By Year\",
+    subtitle = \"Amount of alcohol reported in 78758 by year, including partial year 2021 (thru 08/31/21)\",
+    x = \"Year\",
+    y = \"Total sales (in dollars)\",
+    color = \"Year\", # fix the title for the legend
+    caption = \"Source: austintexas.gov\"
+  ) + 
+  scale_y_continuous(labels = comma) +
+  theme(legend.position = \"none\")
+```"

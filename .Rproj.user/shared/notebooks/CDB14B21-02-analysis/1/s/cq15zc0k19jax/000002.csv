@@ -1,0 +1,16 @@
+"0","```r
+domain_trends_plot <- ggplot(domain_2021_trend, aes(x = mo, y = total_sales)) + # set x and y axis
+  geom_line(aes(group = yr,  color = as.character(yr))) + # split lines and set colors
+  geom_point(aes(color = as.character(yr))) +
+  labs(
+    title = \"The Domain Yearly Sales Trends\",
+    subtitle = \"Alcohol sales by year for 78758, including partial year 2021 (thru 08/31/21)\",
+    x = \"Month\",
+    y = \"Total sales (in dollars)\",
+    color = \"Year\", # fix the title for the legend
+    caption = \"Source: austintexas.gov\"
+  ) +
+  scale_y_continuous(labels = comma)
+
+domain_trends_plot %>% ggplotly()
+```"

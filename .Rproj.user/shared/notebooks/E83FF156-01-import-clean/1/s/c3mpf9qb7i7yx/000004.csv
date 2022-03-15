@@ -1,0 +1,7 @@
+"0","itop_totals <- inner_join( #join the remaining data minus the totals"
+"0","  race_totals,"
+"0","  age_totals"
+"0",")"
+"1","Joining, by = c(""sheet"", ""county"")
+"
+"0","itop_totals"

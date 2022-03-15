@@ -1,0 +1,7 @@
+"0","terminations_over_time <- all_terminations %>% "
+"0","  group_by(year) %>% "
+"0","  summarise(total_terminations = sum(total_terminations)) # get total terminations by year"
+"0",""
+"0","terminations_over_time %>% write_clip(allow_non_interactive = T) # for datawrapper"
+"0",""
+"0","terminations_over_time"

@@ -1,0 +1,15 @@
+"0","```r
+tx_rates <- tx_renamed %>% 
+  mutate(
+    cases_per_pop = (cases / (total_pop / 1000)) %>% round(),
+    deaths_per_pop = (deaths / (total_pop / 1000)) %>% round()
+  )
+
+tx_rates
+```"
+"1","Simple feature collection with 254 features and 8 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: -106.6456 ymin: 25.83738 xmax: -93.50829 ymax: 36.5007
+Geodetic CRS:  NAD83
+"

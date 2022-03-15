@@ -1,0 +1,8 @@
+"0","county_termination_rates_2020 %>% "
+"0","  write_rds(""data-processed/01-county-terminations-2020.rds"")"
+"0",""
+"0","all_terminations %>% "
+"0","  write_rds(""data-processed/02-all-terminations.rds"")"
+"0",""
+"0","itop_totals %>% "
+"0","  write_rds(""data-processed/03-itop-totals.rds"")"

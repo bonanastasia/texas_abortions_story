@@ -1,0 +1,7 @@
+"0","skittles_long %>% "
+"0","  group_by(name) %>% "
+"0","  summarise(total_skittles = sum(candies)) %>% "
+"0","  summarise(average_skittles = mean(total_skittles)) %>% "
+"0","  mutate("
+"0","    average_skittles = round(average_skittles, 1)"
+"0","  )"

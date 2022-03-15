@@ -1,0 +1,2 @@
+"0","# add data from skittles long to clipboard"
+"0","skittles_avg %>% write_clip(allow_non_interactive = T)"

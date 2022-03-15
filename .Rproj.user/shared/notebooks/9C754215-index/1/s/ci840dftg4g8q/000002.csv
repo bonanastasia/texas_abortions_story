@@ -1,0 +1,25 @@
+"0","skittles <- data %>% "
+"0","  mutate("
+"0","    date_entered = mdy_hms(timestamp) %>% date() #use lubridate to change timestamp str to actual timestamp, save as new column"
+"0","  ) %>% "
+"0","  select(-timestamp) # use select to get rid of old timestamp column"
+"0",""
+"0","skittles %>% glimpse()"
+"1","Rows: 124"
+"1",""
+"1","
+"
+"1","Columns: 7"
+"1",""
+"1","
+"
+"1","$ name         [3m[38;5;246m<chr>[39m[23m ""Alora Jones"", ""Alyssa Hiarker"", ""Annie Patton"", ""Christian McDonald"", ""Claudia Ng"", ""Cr…
+$ red          [3m[38;5;246m<dbl>[39m[23m 12, 13, 12, 9, 7, 10, 12, 11, 7, 18, 13, 11, 10, 14, 8, 8, 10, 13, 15, 14, 12, 12, 17, 1…
+$ green        [3m[38;5;246m<dbl>[39m[23m 11, 15, 12, 10, 12, 14, 15, 5, 10, 9, 11, 13, 7, 12, 15, 10, 10, 11, 10, 9, 11, 13, 9, 1…
+$ orange       [3m[38;5;246m<dbl>[39m[23m 12, 10, 8, 17, 13, 9, 12, 17, 10, 13, 11, 7, 12, 10, 20, 13, 15, 6, 11, 6, 9, 16, 7, 16,…
+$ yellow       [3m[38;5;246m<dbl>[39m[23m 9, 9, 10, 6, 11, 11, 10, 14, 21, 7, 11, 7, 15, 9, 4, 14, 10, 15, 16, 17, 19, 9, 16, 8, 1…
+$ purple       [3m[38;5;246m<dbl>[39m[23m 15, 15, 18, 18, 17, 16, 12, 13, 14, 13, 12, 21, 16, 14, 10, 14, 15, 13, 9, 13, 10, 11, 1…
+$ date_entered [3m[38;5;246m<date>[39m[23m 2020-07-27, 2020-08-01, 2020-07-30, 2020-06-23, 2020-07-30, 2020-07-22, 2020-07-29, 202…"
+"1",""
+"1","
+"

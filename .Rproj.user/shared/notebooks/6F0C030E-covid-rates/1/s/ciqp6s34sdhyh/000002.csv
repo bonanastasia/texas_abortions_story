@@ -1,0 +1,16 @@
+"0","```r
+tx_rates %>% 
+  group_by(county) %>% 
+  arrange(cases_per_pop %>% desc()) %>% 
+  select(
+    county, 
+    cases_per_pop
+  ) %>% 
+  head(10)
+```"
+"1","Simple feature collection with 10 features and 2 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: -104.1024 ymin: 26.2993 xmax: -97.22495 ymax: 34.74753
+Geodetic CRS:  NAD83
+"

@@ -1,0 +1,5 @@
+"0","```r
+west_campus_trends_plot +
+  facet_wrap(~ yr) + # add facet wrap and split by yr
+  theme(legend.position = \"none\", axis.text.x = element_text(angle = 90)) # flips the axis name to make it readable
+```"

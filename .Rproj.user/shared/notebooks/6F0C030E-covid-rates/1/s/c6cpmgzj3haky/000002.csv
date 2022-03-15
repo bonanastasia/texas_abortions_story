@@ -1,0 +1,10 @@
+"0","```r
+tx_covid <- covid %>% 
+  filter(state == \"Texas\") %>% 
+  group_by(county) %>% 
+  slice_max(date) %>% 
+  filter(county != \"Unknown\") %>% 
+  select(-state)
+
+tx_covid
+```"

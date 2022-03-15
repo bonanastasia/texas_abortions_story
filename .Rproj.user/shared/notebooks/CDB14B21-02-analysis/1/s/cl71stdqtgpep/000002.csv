@@ -1,0 +1,14 @@
+"0","```r
+ggplot(west_campus_2021_trend, aes(x = mo, y = total_sales)) + # set x and y axis
+  geom_line(aes(group = yr,  color = as.character(yr))) + # split lines and set colors
+  labs(
+    title = \"West Campus Monthly Alcohol Sales Trends\",
+    subtitle = \"Alcohol sales reported by month for West Campus (78705), including partial year 2021\",
+    x = \"Month\",
+    y = \"Total sales (in dollars)\",
+    color = \"Year\", # fix the title for the legend
+    caption = \"Source: austintexas.gov\"
+  ) +
+  scale_y_continuous(labels = comma) +
+  gghighlight(max(total_sales) > 1000000 && min(total_sales) < 650000) # Play with highlighting 2021 using gghighlight
+```"

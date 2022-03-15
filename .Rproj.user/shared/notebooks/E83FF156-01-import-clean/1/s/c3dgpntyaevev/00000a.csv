@@ -1,0 +1,20 @@
+"0","terminations_and_census <- inner_join( # this will get rid of the non-county values"
+"0","  tx_pop,# second table with columns we'll add "
+"0","  terminations_2020,"
+"0","  by = c(""name"" = ""county"")"
+"0",") "
+"0",""
+"0","terminations_and_census"
+"1","Simple feature collection with 254 features and 21 fields"
+"1","
+"
+"1","Geometry type: MULTIPOLYGON
+"
+"1","Dimension:     XY
+"
+"1","Bounding box:  "
+"1","xmin: -106.6456 ymin: 25.83738 xmax: -93.50829 ymax: 36.5007"
+"1","
+"
+"1","Geodetic CRS:  NAD83
+"

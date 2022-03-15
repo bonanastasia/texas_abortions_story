@@ -1,0 +1,14 @@
+"0","```r
+yearly_totals_west_campus <- receipts %>% 
+  filter(
+    location_zip == \"78705\",
+    yr < 2021 # limit results to whole years
+  ) %>% 
+  group_by(yr) %>% 
+  summarize(
+    total_sales = sum(total_receipts) # add total receipts together for each year
+  ) %>% 
+  arrange(desc(total_sales))
+
+yearly_totals_west_campus
+```"

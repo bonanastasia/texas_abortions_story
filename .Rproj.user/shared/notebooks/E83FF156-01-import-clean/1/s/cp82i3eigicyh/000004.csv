@@ -1,0 +1,19 @@
+"0","county_termination_rates_2020 <- terminations_and_census %>% "
+"0","  mutate("
+"0","    terminations_per_pop = (total_terminations / (total_pop / 1000)) %>% round()"
+"0","  )"
+"0",""
+"0","county_termination_rates_2020"
+"1","Simple feature collection with 254 features and 22 fields"
+"1","
+"
+"1","Geometry type: MULTIPOLYGON
+"
+"1","Dimension:     XY
+"
+"1","Bounding box:  "
+"1","xmin: -106.6456 ymin: 25.83738 xmax: -93.50829 ymax: 36.5007"
+"1","
+"
+"1","Geodetic CRS:  NAD83
+"

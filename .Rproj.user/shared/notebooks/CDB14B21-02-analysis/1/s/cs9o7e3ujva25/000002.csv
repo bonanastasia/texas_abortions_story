@@ -1,0 +1,13 @@
+"0","```r
+west_campus_most_sales <- receipts %>% 
+  filter(
+    location_zip == \"78705\"
+  ) %>% 
+  group_by(location_name, location_address) %>% 
+  summarize(
+    total_sales = sum(total_receipts)
+  ) %>% 
+  arrange(desc(total_sales))
+
+west_campus_most_sales
+```"

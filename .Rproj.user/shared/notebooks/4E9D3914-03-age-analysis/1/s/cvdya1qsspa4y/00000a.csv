@@ -1,0 +1,7 @@
+"0","terminations_by_age %>% "
+"0","  filter("
+"0","    year == ""2020"""
+"0","  ) %>% "
+"0","  arrange("
+"0","    total_terminations %>% desc()"
+"0","  )"

@@ -1,0 +1,6 @@
+"0","terminations_2020 <- all_terminations %>% "
+"0","  filter("
+"0","    year == 2020"
+"0","  )"
+"0",""
+"0","terminations_2020"
